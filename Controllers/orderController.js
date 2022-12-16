@@ -61,10 +61,16 @@ export const markOrderComplete = async(req, res) => {
 
 const getBestVendor = async(itemName)=> {
     try {
-        const vendors =  await vendorModel.find({product: itemName}).sort({avgRating: -1});
-        const rating = vendors[0].avgRating;
-        let highestRatingVendors = await vendorModel.find({avgRating: rating,product: itemName});
-        highestRatingVendors = await vendorModel.find({product: itemName,avgRating:rating}).sort({deliveryRating: -1});
+        const vendors =  await vendorModel.find({product: itemName}).sort({overallVendorRating: -1});
+        const rating = vendors[0].overallVendorRating;
+        let highestRatingVendors = await vendorModel.find({overallVendorRating: rating,product: itemName});
+        if(highestRatingVendors.length == 1) {
+            return  {
+                vendorId: highestRatingVendors[0]._id,
+                price: highestRatingVendors[0].price
+            }
+        }
+        highestRatingVendors = await vendorModel.find({product: itemName,overallVendorRating:rating}).sort({deliveryRating: -1});
         return  {
             vendorId: highestRatingVendors[0]._id,
             price: highestRatingVendors[0].price
